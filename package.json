@@ -1,0 +1,17 @@
+{
+  "name": "nd17-test-task",
+  "version": "0.0.0",
+  "license": "MIT",
+  "angular-cli": {},
+  "scripts": {
+    "start" : "nodemon ./server/server.js",
+  },
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
