@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+import Pokemon from './pokemon';
+import PokemonList from './pokemonlist';
+
 function hide(pathTo, pokemonList) {
     let maxNumber = 10;
     let pokemons = pokemonList.length;
@@ -32,27 +35,21 @@ function hide(pathTo, pokemonList) {
 }
 
 function seek(pathTo) {
-    var results = [];
-    var findFilesInDir = function (startPath,filter){
-        fs.readdir(startPath, function(err, items) {
-            for (let i=0; i<items.length; i++) {
-                let filename = path.join(startPath, items[i]);
-                let stat = fs.lstatSync(filename);
-                if (stat.isDirectory()){
-                    findFilesInDir(filename, filter); //recurse
-                }
-                else if (filename.indexOf(filter) >= 0) {
-                    var result = fs.readFileSync(filename, "utf8");
-                    console.log(result);
-                    results.push(result);
-
-                }
+    return new Promise(function (resolve, reject) {
+        findOne(pathTo).then(data => {
+            let pokemonList = [];
+            let count = 0;
+            for (let i in data) {
+                let arr = data[i].toString().split('|');
+                pokemonList[count] = new Pokemon(arr[0], arr[1]);
+                count++;
             }
-        });
-    };
-
-    findFilesInDir(pathTo ,'pokemon.txt');
-    console.log('res', results);
+            //resolve(new PokemonList(...pokemonList));
+            resolve(pokemonList);
+        }, err => {
+            console.log(err);
+        })
+    });
 }
 
 function hidePokemons(randomNumber, pokemonList, dirList) {
@@ -126,7 +123,46 @@ function deleteFolderRecursive (path) {
 }
 
 
+function findOne(pathTo) {
+    return new Promise(function (resolve, reject) {
+        fs.readdir(pathTo, function (err, files) {
+            if (err) throw err;
+            let result = {};
+            let p = files.map(function (name) {
+                return new Promise(function (resolve, reject) {
+                    fs.stat(path.join(pathTo, name), function (err, stats) {
+                        if (err) throw err;
+                        let obj = {};
+                        if (stats.isFile()) {
+                            fs.readFile(path.join(pathTo, name), (err, data) => {
+                                if (err) throw err;
+                                let arr = data.toString().split('|');
+                                obj[arr[0]] = data.toString();
+                                result = Object.assign(result, obj);
+                                resolve(result);
+                            });
+                        } else {
+                            findOne(path.join(pathTo, name)).then(data => {
+                                resolve(data);
+                            });
+                        }
+                    });
+                });
+            });
 
+            Promise.all(p).then(data => {
+                let result = {};
+                for (let i of data) {
+                    Object.assign(result, i);
+                }
+                resolve(result);
+            })
+                .catch(err => {
+                    console.log(err);
+                });
+        });
+    });
+}
 
 
 function random(min, max) {

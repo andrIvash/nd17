@@ -1,8 +1,21 @@
 import Hidenseek from './hidenseek';
-let p = Hidenseek.hide('./task2/field', ['Charmander|100', 'Charmander|200', 'Charmander|300']);
+import Pokemon from './pokemon';
+import PokemonList from './pokemonlist';
+
+
+let chikorita = new Pokemon('Chikorita', 152);
+let beirifu = new Pokemon('Beirifu', 153);
+let meganiumu = new Pokemon('Meganiumu', 154);
+
+let lost = new PokemonList(chikorita, beirifu, meganiumu);
+
+
+let p = Hidenseek.hide('./task2/field', lost);
 p.then((pokemons)=> {
     //console.log(pokemons);
-    Hidenseek.seek('./task2/field');
+    Hidenseek.seek('./task2/field').then((pokemons) => {
+        console.log(pokemons);
+    })
 });
 
 
