@@ -9,7 +9,7 @@ class Pokemon {
         console.log(`name: ${this.name}, level: ${this.level}`);
     }
     valueOf () {
-        return `name: ${this.name}, level: ${this.level}`;
+        return `${this.name}|${this.level}`;
     }
 }
 

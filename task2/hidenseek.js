@@ -1,8 +1,9 @@
+const Pokemon = require('./pokemon');
+const PokemonList = require('./pokemonlist');
+
 const fs = require('fs');
 const path = require('path');
 
-import Pokemon from './pokemon';
-import PokemonList from './pokemonlist';
 
 function hide(pathTo, pokemonList) {
     let maxNumber = 10;
@@ -36,16 +37,18 @@ function hide(pathTo, pokemonList) {
 
 function seek(pathTo) {
     return new Promise(function (resolve, reject) {
+        let pokemonList = [];
         findOne(pathTo).then(data => {
-            let pokemonList = [];
             let count = 0;
             for (let i in data) {
-                let arr = data[i].toString().split('|');
-                pokemonList[count] = new Pokemon(arr[0], arr[1]);
+                let arr = data[i].split('|');
+                let pokemon = new Pokemon(arr[0], arr[1]);
+                pokemonList.push(pokemon);
                 count++;
             }
-            //resolve(new PokemonList(...pokemonList));
-            resolve(pokemonList);
+            //console.log(pokemonList);
+            resolve(new PokemonList(...pokemonList));
+
         }, err => {
             console.log(err);
         })

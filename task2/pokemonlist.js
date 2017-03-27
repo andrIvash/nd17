@@ -1,3 +1,5 @@
+const Pokemon = require('./pokemon');
+
 class PokemonList extends Array {
 
     constructor(...pokemons) {
