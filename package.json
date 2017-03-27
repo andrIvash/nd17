@@ -4,7 +4,7 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start" : "nodemon ./server/server.js",
+    "start": "nodemon ./task2/index.js --exec babel-node --presets es2015,stage-2"
   },
   "private": true,
   "dependencies": {
@@ -12,6 +12,8 @@
     "express": "^4.14.0"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-stage-2": "^6.22.0",
     "nodemon": "^1.11.0"
   }
 }
