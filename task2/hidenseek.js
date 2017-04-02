@@ -12,13 +12,12 @@ function hide(pathTo, pokemonList) {
     let dirNumber = 10; // dir number
 
     let result = isDirCreate(pathTo).then((items)=> {
-        //console.log(items);
         return createInnerDirs(pathTo, dirNumber);
     }, () => {
         throw new  Error('cannot create main dir');
     }).then((dirList) => {
         let randomNumber = random(1, dirList.length < pokemonAmount ? dirList.length : pokemonAmount);
-        return hidePokemons(randomNumber, pokemonList, dirList)
+        return hidePokemons(randomNumber, pokemonList, dirList, pathTo)
     }, () => {
        throw new  Error('cannot create dir list');
     }).then((pokemons) => {
@@ -38,50 +37,58 @@ function hide(pathTo, pokemonList) {
 function seek(pathTo) {
     return new Promise(function (resolve, reject) {
         let pokemonList = [];
-        findOne(pathTo).then(data => {
-            let count = 0;
-            for (let i in data) {
-                let arr = data[i].split('|');
-                let pokemon = new Pokemon(arr[0], arr[1]);
-                pokemonList.push(pokemon);
-                count++;
-            }
-            //console.log(pokemonList);
+        let p = findOne(pathTo).map(function (elem) {
+            return new Promise(function (resolve, reject) {
+                fs.readFile(elem, 'utf-8', (err, data) => {
+                    if (err) reject();
+                    let arr = data.toString().split('|');
+                    let pokemon = new Pokemon(arr[0], arr[1]);
+                    pokemonList.push(pokemon);
+                    resolve(pokemon);
+                });
+            });
+        });
+        Promise.all(p).then(() => {
+            console.log('find pokemons');
             resolve(new PokemonList(...pokemonList));
-
-        }, err => {
-            console.log(err);
         })
     });
 }
 
-function hidePokemons(randomNumber, pokemonList, dirList) {
+function hidePokemons(randomNumber, pokemonList, dirList, pathTo) {
     return new Promise((resolve, reject) => {
-        console.log(randomNumber);
-        let i = 0;
+        let dirs = [];
+        for (let i = 0; i < randomNumber; i++) {
+            let res = random(1, dirList.length);
+            dirs.push(res < 10 ? '0'+res : res);
+        }
         let pokemons = [];
-        while ( i < randomNumber ) {
-            let randomDir = random(1, dirList.length);
-            let randomPokemon = pokemonList[random(1, pokemonList.length)];
-            pokemons.push(randomPokemon);
-            fs.access(`${dirList[randomDir]}/pokemon.txt`, fs.constants.F_OK, (err) => {
-                if (err) {
-                    fs.writeFileSync(`${dirList[randomDir]}/pokemon.txt`, randomPokemon, 'utf-8', function (err) {
-                        if (err) {
-                            console.log('failed to save');
-                            return;
+        let p = dirs.map(function (elem) {
+            return new Promise(function (resolve, reject) {
+                let randomPokemon = pokemonList[random(1, pokemonList.length)];
+                pokemons.push(randomPokemon);
+                fs.open(`${pathTo}/${elem}/pokemon.txt`, 'w', (err) => {
+                    if (err) {
+                        if (err.code === 'EEXIST') {
+                            console.error('myfile already exists');
+                            reject()
                         }
-                        console.log('save');
+                    }
+                    fs.writeFile(`${pathTo}/${elem}/pokemon.txt`, randomPokemon, 'utf-8', function (err) {
+                        if (err) {
+                            reject();
+                        }
+                        resolve();
                     });
 
-                }
+                });
             });
-            i++;
-        }
-        resolve(pokemons);
+        });
+
+        Promise.all(p).then(() => {
+            resolve(pokemons);
+        })
     })
-
-
 }
 
 function createInnerDirs(pathTo, dirNumber) {
@@ -101,7 +108,6 @@ function createInnerDirs(pathTo, dirNumber) {
 function isDirCreate(pathTo) {
     return new Promise((resolve, reject) => {
         fs.readdir(pathTo, (err, items) => {
-            console.log(items);
             deleteFolderRecursive(pathTo);
             fs.mkdir(pathTo, err => {
                 if (err) reject(err);
@@ -126,47 +132,13 @@ function deleteFolderRecursive (path) {
 }
 
 
-function findOne(pathTo) {
-    return new Promise(function (resolve, reject) {
-        fs.readdir(pathTo, function (err, files) {
-            if (err) throw err;
-            let result = {};
-            let p = files.map(function (name) {
-                return new Promise(function (resolve, reject) {
-                    fs.stat(path.join(pathTo, name), function (err, stats) {
-                        if (err) throw err;
-                        let obj = {};
-                        if (stats.isFile()) {
-                            fs.readFile(path.join(pathTo, name), (err, data) => {
-                                if (err) throw err;
-                                let arr = data.toString().split('|');
-                                obj[arr[0]] = data.toString();
-                                result = Object.assign(result, obj);
-                                resolve(result);
-                            });
-                        } else {
-                            findOne(path.join(pathTo, name)).then(data => {
-                                resolve(data);
-                            });
-                        }
-                    });
-                });
-            });
-
-            Promise.all(p).then(data => {
-                let result = {};
-                for (let i of data) {
-                    Object.assign(result, i);
-                }
-                resolve(result);
-            })
-                .catch(err => {
-                    console.log(err);
-                });
-        });
-    });
+function findOne (pathTo) {
+    return fs.readdirSync(pathTo).reduce((list, file) => {
+        let name = path.join(pathTo, file);
+        let isDir = fs.statSync(name).isDirectory();
+        return list.concat(isDir ? findOne(name) : [name]);
+    }, []);
 }
-
 
 function random(min, max) {
     min = Math.ceil(min);
@@ -174,8 +146,5 @@ function random(min, max) {
     max = Math.floor(Math.random() * (max - min + 1));
     return max + min;
 }
-
-
-
 
 module.exports = {hide, seek};

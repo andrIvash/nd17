@@ -11,10 +11,12 @@ let lost = new PokemonList(chikorita, beirifu, meganiumu, chikorita, beirifu, me
 
 let p = Hidenseek.hide('field', lost);
 p.then((pokemons)=> {
-    //console.log(pokemons);
+    pokemons.forEach(item => item.show());
+    console.log('.....................');
     Hidenseek.seek('field').then((poks) => {
-        console.log(poks.show());
+         poks.show();
     })
+
 });
 
 
