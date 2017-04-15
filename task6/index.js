@@ -7,34 +7,16 @@ const express = require('express'),
     config = require('./config/'),
     bodyParser = require('body-parser');
 
-global = {
-    users: [
-        {
-            "id": 1,
-            "name": "one",
-            "score": 25
-        },
-        {
-            "id": 2,
-            "name": "one",
-            "score": 25
-        },
-        {
-            "id": 3,
-            "name": "one",
-            "score": 25
-        }
-    ]
-};
-
 // view engine setup
 app.set('views', path.join(__dirname, '/templates'));
 app.set('view engine', 'pug');
 
-//req.body доступ к данным
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
+
+
+//req.body доступ к данным
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 
 // подключение middleware

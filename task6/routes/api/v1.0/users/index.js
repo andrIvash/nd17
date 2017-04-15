@@ -23,9 +23,10 @@ app.get('/:id', (req, res, next) => {
 });
 
 app.post('/', (req, res, next) => {
+    console.log(req.body, req.params, req);
     if (req.body.name && req.body.score) {
         const users = data().get('users');
-        users.push({id: users.length, name: req.body.name, score: req.body.score});
+        users.push({id: users.length + 1, name: req.body.name, score: req.body.score});
         nconf.set('users', users);
         nconf.save();
         res.send('users add')
