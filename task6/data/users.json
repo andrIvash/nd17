@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "google",
+      "score": 23
+    },
+    {
+      "id": 2,
+      "name": "facebook",
+      "score": 23
+    }
+  ]
+}
