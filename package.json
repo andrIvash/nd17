@@ -4,15 +4,13 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start": "node ./task6/index.js --exec babel-node --presets es2015,stage-2",
-    "moon": "nodemon ./task6/index.js"
+    "start": "node ./task7/index.js --exec babel-node --presets es2015,stage-2",
+    "moon": "nodemon ./task7/index.js"
   },
   "private": true,
   "dependencies": {
     "body-parser": "^1.16.0",
-    "express": "^4.14.0",
-    "jayson": "^2.0.3",
-    "node-express-json-rpc2": "^1.0.2"
+    "express": "^4.14.0"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.0",

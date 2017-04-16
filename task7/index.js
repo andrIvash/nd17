@@ -29,7 +29,7 @@ require('./routes')(app);
 var  HttpError = require('./error/').HttpError;
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    var err = new HttpError(400, 'wrong query');
+    var err = new HttpError(404, 'The page is not found');
     next(err);
 });
 
