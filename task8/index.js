@@ -12,12 +12,12 @@ app.set('views', path.join(__dirname, '/templates'));
 app.set('view engine', 'pug');
 
 
-
-
 //req.body доступ к данным
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+// Point static path to dist
+app.use(express.static(path.join(__dirname, 'public')));
 
 // подключение middleware
 app.use(require('./middleware/sendHttpError'));
