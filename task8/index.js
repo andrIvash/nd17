@@ -1,11 +1,16 @@
 const express = require('express'),
-    app = require('express')(),
+    app = express(),
     http = require('http'),
     path = require('path'),
     util = require('util'),
+    server = http.createServer(app),
     errorHandler = require('errorhandler'),
     config = require('./config/'),
     bodyParser = require('body-parser');
+    io = require('socket.io').listen(server);
+
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, '/templates'));
@@ -22,8 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // подключение middleware
 app.use(require('./middleware/sendHttpError'));
 
+
 //подключение routes
-require('./routes')(app);
+require('./routes')(app, io);
 
 //--------------------  обработка ошибки  ------------------//
 var  HttpError = require('./error/').HttpError;
@@ -54,6 +60,6 @@ app.use(function(err, req, res, next) {
 
 
 //-------------------------запуск сервера ----------------------------//
-http.createServer(app).listen(config().get('port'), function(){  // запускаем сервер
+server.listen(config().get('port'), function(){  // запускаем сервер
     console.log('express server listening on port : ' + config().get('port'));
 });
