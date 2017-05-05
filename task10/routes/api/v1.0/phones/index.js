@@ -10,102 +10,101 @@ const express  = require('express'),
 const uri = `mongodb://${config().get('user')}:${config().get('password')}@ds021182.mlab.com:21182/my-test`;
 
 app.get('/', (req, res) => {
-    res.send(data().get('users'));
+    MongoClient.connect(uri, function(err, db) {
+        if (err) throw new Error('connection to database is broken', err);
+        const collection = db.collection('phones');
+        collection.find().toArray((err, result) => {
+            if (err) throw new Error('not found', err);
+            res.send(result);
+            db.close();
+        });
+    });
 });
-app.get('/:id', (req, res, next) => {
-    if (!isNaN(parseFloat(req.params.id)) && isFinite(req.params.id)) {
-        let id = findUser(parseFloat(req.params.id));
-        if (id >= 0) {
-            res.send(data().get('users')[id]);
-        } else {
-            next(new HttpError(200, 'user not found'));
-        }
+app.get('/:name', (req, res, next) => { //get /{name/surname/phone} ?value=<value>
+    if (req.params.name && req.query.value) {
+        MongoClient.connect(uri, function(err, db) {
+            if (err) throw new Error('connection to database is broken', err);
+            const collection = db.collection('phones');
+            collection.find({[req.params.name]: req.query.value}).toArray((err, result) => {
+                if (err) throw new Error('not found', err);
+                if(result.length) {
+                    res.send(result);
+                } else {
+                    res.send(new HttpError(200, 'data not found'));
+                }
+                db.close();
+            });
+        });
     } else {
         next(new HttpError(400, 'wronq query'));
     }
 });
 
 app.post('/', (req, res, next) => {
-    console.log(req.body, req.params, req);
-    if (req.body.name && req.body.score) {
-        const users = data().get('users');
-        users.push({id: users.length + 1, name: req.body.name, score: req.body.score});
-        nconf.set('users', users);
-        nconf.save();
-        res.send('users add')
+    if (req.body.name && req.body.surname && req.body.phone) {
+        MongoClient.connect(uri, function(err, db) {
+            if (err) throw new Error('connection to database is broken', err);
+            const collection = db.collection('phones');
+            let item = {
+                name: req.query.name,
+                surname: req.query.surname,
+                phone: req.query.phone
+            };
+            collection.insert(item, (err, result) => {
+                if (err)  throw new Error('can not insert', err);
+                res.send(result);
+                db.close();
+            });
+        });
     } else {
         next(new HttpError(400, 'wronq query'));
     }
 });
 
-app.patch('/:id', (req, res,  next) => {
-    if (!isNaN(parseFloat(req.params.id)) && isFinite(req.params.id)) {
-        let id = findUser(parseFloat(req.params.id));
-        if (id >= 0) {
-            if (req.query.name && req.query.score) {
-                const users = data().get('users');
-                users[id] = {id: users[id].id, name: req.query.name, score: req.query.score};
-                nconf.set('users', users);
-                nconf.save();
-                res.send('user modify');
-            }
-        } else {
-            next(new HttpError(200, 'user not found'));
-        }
+app.patch('/:name', (req, res, next) => { //get /{name/surname/phone} ?value=<value>&name=&surname=&phone=
+    if (req.params.name && req.query.value) {
+        MongoClient.connect(uri, function(err, db) {
+            if (err) throw new Error('connection to database is broken', err);
+            const collection = db.collection('phones');
+            collection.find({[req.params.name]: req.query.value}).toArray((err, result) => {
+                if (err) throw new Error('not found', err);
+                if(result.length) {
+                    collection.update(
+                        { [req.params.name]: req.query.value },
+                        {
+                            name: req.query.name,
+                            surname: req.query.surname,
+                            phone: req.query.phone
+                        });
+                    res.send(new HttpError(200, 'data update'));
+                } else {
+                    res.send(new HttpError(200, 'data not found'));
+                }
+                db.close();
+            });
+        });
     } else {
         next(new HttpError(400, 'wronq query'));
     }
 });
 
-app.delete('/:id', (req, res, next) => {
-    if (!isNaN(parseFloat(req.params.id)) && isFinite(req.params.id)) {
-        let id = findUser(parseFloat(req.params.id));
-        if (id >= 0) {
-            const users = data().get('users');
-            users.splice(id, 1);
-            nconf.set('users', users);
-            nconf.save();
-            res.send('user delete');
-        } else {
-            next(new HttpError(200, 'user not found'));
-        }
+app.delete('/:name', (req, res, next) => { //get /{name/surname/phone} ?value=<value>
+    if (req.params.name && req.query.value) {
+        MongoClient.connect(uri, function(err, db) {
+            if (err) throw new Error('connection to database is broken', err);
+            const collection = db.collection('phones');
+            collection.find({[req.params.name]: req.query.value}).toArray((err, result) => {
+                if (err) throw new Error('not found', err);
+                if(result.length) {
+                    collection.remove( { [req.params.name]: { $eq: req.query.value } } )
+                    res.send(new HttpError(200, 'data deleted'));
+                } else {
+                    res.send(new HttpError(200, 'data not found'));
+                }
+                db.close();
+            });
+        });
     } else {
         next(new HttpError(400, 'wronq query'));
     }
 });
-
-function findUser(id) {
-    return data().get('users').findIndex((elem) => {
-        return elem.id === id;
-    })
-}
-
-
-// MongoClient.connect(uri, function(err, db) {
-//     if(err) throw new Error('connection to database is broken', err);
-//
-//     console.log('connection to database was performed');
-//     const collection = db.collection('users');
-//
-//     let user1 = {name: 'John'};
-//     let user2 = {name: 'David'};
-//     let user3 = {name: 'Steve'};
-//
-//     collection.insert([user1, user2, user3], (err, result) => {
-//         if (err)  throw new Error('can not insert', err);
-//         showData(collection,{});
-//         collection.update({name: 'Steve'}, {$set: {name: 'Superman'}});
-//         showData(collection,{});
-//         collection.remove({name : 'Superman'});
-//         showData(collection,{});
-//         collection.remove();
-//         db.close();
-//     });
-// });
-//
-// function showData(collection, query) {
-//     collection.find(query).toArray((err, result) => {
-//         if (err) throw new Error('not found', err);
-//         console.log(result);
-//     });
-// }
