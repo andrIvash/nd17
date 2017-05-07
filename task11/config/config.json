@@ -1,0 +1,15 @@
+{
+  "port": 3000,
+  "server": "http://localhost",
+  "mongoose": {
+    "uri": "ds021182.mlab.com:21182/task-manager",
+    "user": "one",
+    "password": "one12345",
+
+    "options": {
+      "socketOptions": {
+        "keepAlive": 1
+      }
+    }
+  }
+}
