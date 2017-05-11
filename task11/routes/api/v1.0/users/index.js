@@ -4,28 +4,31 @@ const express  = require('express'),
     config = require('../../../../config/index'),
     User = require('../../../../models/users').User;
 
- const mongoose = require('mongoose');
+
 
 //подкючение mongoose
 
 app.get('/', (req, res) => {
-
+    const mongoose = require('../../../../libs/mongoose');
+    mongoose.connection.once('open', () => {
+        User.find((err, users) => {
+            if (err) res.send(new HttpError(500, err));
+            res.send(new HttpError(200, users));
+            mongoose.disconnect();
+        });
+    });
 });
 
 app.post('/', (req, res) => {
-    mongoose.connect(`mongodb://${config().get('mongoose:user')}:${config().get('mongoose:password')}@${config().get('mongoose:uri')}`);
-
-
+    const mongoose = require('../../../../libs/mongoose');
     mongoose.connection.once('open', () => {
-        console.log('подключились');
         let user = new User({username: 'Vasya'});
-        user.save((err) => {
-            if(err) res.send(new HttpError(500, 'cannot save'));
-            res.send(new HttpError(200, 'data saved'));
+        user.save(function (err, user) {
+            if (err) res.send(new HttpError(500, err));
+            res.send(new HttpError(200, 'user saved'));
             mongoose.disconnect();
         });
 
     });
-
 });
 

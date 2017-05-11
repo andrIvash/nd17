@@ -9,3 +9,5 @@ Getting started:
 2. `npm run start`
 
 Примеры запросов
+- POST /task-manager-api/v1.0/users - добавить пользователя
+- GET /task-manager-api/v1.0/users - получить список польователей 
