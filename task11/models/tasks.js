@@ -12,11 +12,11 @@ const schema = new Schema({
     },
     description: {
         type: String,
-        required: true,
+        required: false,
     },
     status: {
         type: Boolean,
-        required: true,
+        required: false,
     },
     userID: {
         type: String,
@@ -45,4 +45,4 @@ schema.methods.delegate = function(userID, callback) {
     ], callback);
 };
 
-exports.Note = mongoose.model('Task', schema);
+exports.Task = mongoose.model('Task', schema);
