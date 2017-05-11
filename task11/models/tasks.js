@@ -39,10 +39,8 @@ schema.methods.delegate = function(userID, callback) {
                 callback(new HttpError(400, 'user not found'));
             }
             Task.userID = userID;
-            Task.save().then(
-                callback(new HttpError(200, 'succesfully delegate')),
-                callback(new HttpError(500, 'database fail'))
-            )
+            Task.save();
+            callback(new HttpError(200, 'succesfully delegate'));
         }
     ], callback);
 };
