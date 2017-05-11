@@ -6,7 +6,6 @@ const express  = require('express'),
 
 
 
-//подкючение mongoose
 
 app.get('/', (req, res) => {
     const mongoose = require('../../../../libs/mongoose');
