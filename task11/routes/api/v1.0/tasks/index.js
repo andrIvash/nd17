@@ -99,3 +99,27 @@ app.get('/:id', (req, res, next) => { //get /{taskId}  or get /{title/descriptio
 });
 
 
+app.put('/:id/:name', (req, res, next) => { //put /{delegate/switch} ?userID= or status=
+    if (req.params.id && req.params.name) {
+        const mongoose = require('../../../../libs/mongoose');
+        mongoose.connection.once('open', () => {
+            Task.findById(req.params.id, (err, task) =>{
+                if (err) res.send(new HttpError(200, 'task not found'));
+                if(req.params.name === 'delegate') {
+                    task.userID = req.body.userID || null;
+                } else if(req.params.name === 'switch') {
+                    task.status = req.body.status || false;
+                } else {
+                    res.send(new HttpError(400, 'wronq query'));
+                }
+
+                task.save(function (err, task) {
+                    if (err) res.send(new HttpError(500, err));
+                    res.send(new HttpError(200, 'task saved'));
+                });
+            });
+        });
+    } else {
+        res.send(new HttpError(400, 'wronq query'));
+    }
+});
