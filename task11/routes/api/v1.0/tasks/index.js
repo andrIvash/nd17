@@ -13,24 +13,8 @@ app.get('/', (req, res) => {
         Task.find((err, tasks) => {
             if (err) res.send(new HttpError(500, err));
             res.send(new HttpError(200, tasks));
-            mongoose.disconnect();
         });
     });
-});
-
-app.get('/:id', (req, res, next) => { //get /{taskId}
-    if (req.params.id ) {
-        const mongoose = require('../../../../libs/mongoose');
-        mongoose.connection.once('open', () => {
-           Task.findById(req.params.id, (err, task) =>{
-                if (err) res.send(new HttpError(200, 'data not found'));
-                res.send(task);
-                mongoose.disconnect();
-            });
-        });
-    } else {
-        res.send(new HttpError(400, 'wronq query'));
-    }
 });
 
 app.post('/', (req, res) => { //post  ?title=&description=&status=&userID
@@ -46,7 +30,6 @@ app.post('/', (req, res) => { //post  ?title=&description=&status=&userID
             task.save(function (err, task) {
                 if (err) res.send(new HttpError(500, err));
                 res.send(new HttpError(200, 'task saved'));
-                mongoose.disconnect();
             });
         });
     } else {
@@ -67,7 +50,6 @@ app.patch('/:id', (req, res, next) => { //patch /{tasId} ?title=&description=&st
                 task.save(function (err, task) {
                     if (err) res.send(new HttpError(500, err));
                     res.send(new HttpError(200, 'task saved'));
-                    mongoose.disconnect();
                 });
             });
         });
@@ -83,9 +65,34 @@ app.delete('/:id', (req, res) => { //delete /{taskId}
             Task.findByIdAndRemove(req.params.id, (err, task) =>{
                 if (err) res.send(new HttpError(200, 'data not found'));
                 res.send(new HttpError(200, `task ${req.params.id} deleted`));
-                mongoose.disconnect();
             });
         });
+    } else {
+        res.send(new HttpError(400, 'wronq query'));
+    }
+});
+app.get('/:id', (req, res, next) => { //get /{taskId}  or get /{title/description}?value=""
+    const mongoose = require('../../../../libs/mongoose');
+    if (req.params.id) {
+        if (req.params.id === 'title' || req.params.id === 'description') {
+            mongoose.connection.once('open', () => {
+                Task.find({[req.params.id]: req.query.value}, (err, result) => {
+                    if (err) res.send(new HttpError(500, err));
+                    if (result.length) {
+                        res.send(new HttpError(200, result));
+                    } else {
+                        res.send(new HttpError(200, 'data not found'));
+                    }
+                });
+            });
+        } else {
+            mongoose.connection.once('open', () => {
+                Task.findById(req.params.id, (err, task) => {
+                    if (err) res.send(new HttpError(200, 'data not found'));
+                    res.send(task);
+                });
+            });
+        }
     } else {
         res.send(new HttpError(400, 'wronq query'));
     }

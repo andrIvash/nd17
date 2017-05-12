@@ -13,7 +13,6 @@ app.get('/', (req, res) => {
         User.find((err, users) => {
             if (err) res.send(new HttpError(500, err));
             res.send(new HttpError(200, users));
-            mongoose.disconnect();
         });
     });
 });
@@ -25,7 +24,6 @@ app.get('/:id', (req, res, next) => { //get /{userId}
             User.findById(req.params.id, (err, user) =>{
                 if (err) res.send(new HttpError(200, 'data not found'));
                 res.send(user);
-                mongoose.disconnect();
             });
         });
     } else {
@@ -41,7 +39,6 @@ app.post('/', (req, res) => { //post  ?name=
             user.save(function (err, user) {
                 if (err) res.send(new HttpError(500, err));
                 res.send(new HttpError(200, 'user saved'));
-                mongoose.disconnect();
             });
         });
     } else {
@@ -59,7 +56,6 @@ app.patch('/:id', (req, res, next) => { //patch /{userId} ?name=
                 user.save(function (err, user) {
                     if (err) res.send(new HttpError(500, err));
                     res.send(new HttpError(200, 'user saved'));
-                    mongoose.disconnect();
                 });
             });
         });
@@ -75,7 +71,6 @@ app.delete('/:id', (req, res) => {
             User.findByIdAndRemove(req.params.id, (err, user) =>{
                 if (err) res.send(new HttpError(200, 'data not found'));
                 res.send(new HttpError(200, `user ${req.params.id} deleted`));
-                mongoose.disconnect();
             });
         });
     } else {
