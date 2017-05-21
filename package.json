@@ -4,8 +4,8 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start": "node ./task11/index.js --exec babel-node --presets es2015,stage-2",
-    "moon": "nodemon ./task11/index.js"
+    "start": "node ./task12/index.js --exec babel-node --presets es2015,stage-2",
+    "moon": "nodemon ./task12/index.js"
   },
   "private": true,
   "dependencies": {
