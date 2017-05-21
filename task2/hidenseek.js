@@ -10,7 +10,6 @@ function hide(pathTo, pokemonList) {
     let pokemons = pokemonList.length;
     let pokemonAmount = random(1, pokemons < maxNumber ? pokemons : maxNumber);
     let dirNumber = 10; // dir number
-
     let result = isDirCreate(pathTo).then((items)=> {
         return createInnerDirs(pathTo, dirNumber);
     }, () => {
@@ -96,7 +95,7 @@ function createInnerDirs(pathTo, dirNumber) {
         let dirList = [];
         for(let i = 1; i <= dirNumber; i++) {
             let dirName = (i < 10) ? path.join(pathTo, `0${[i]}`) : path.join(pathTo, `${[i]}`);
-            fs.mkdirSync(dirName, err => {
+            fs.mkdir(dirName, err => {
                 if (err) reject();
             });
             dirList.push(dirName);
