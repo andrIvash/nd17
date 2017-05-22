@@ -4,7 +4,8 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start" : "nodemon ./server/server.js",
+    "start": "nodemon ./server/server.js",
+    "test": "mocha"
   },
   "private": true,
   "dependencies": {
@@ -12,6 +13,8 @@
     "express": "^4.14.0"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.4.1",
     "nodemon": "^1.11.0"
   }
 }

@@ -1,40 +1,6 @@
-class Pokemon {
+const Pokemon = require('./Pokemon');
+const PokemonList = require('./PokemonList');
 
-    constructor(name, level) {
-        this.name = name;
-        this.level = level;
-    }
-
-    show () {
-        console.log(`name: ${this.name}, level: ${this.level}`);
-    }
-    valueOf () {
-        return `name: ${this.name}, level: ${this.level}`;
-    }
-}
-
-class PokemonList extends Array {
-
-    constructor(...pokemons) {
-        super(...pokemons);
-        this.pokemons = pokemons;
-    }
-
-    add (name, level) {
-        this.pokemons.push(new Pokemon(name, level));
-    }
-
-    show () {
-        this.pokemons.map(item => {
-          item.show();
-        });
-        console.log(`Total: ${this.pokemons.length}`);
-    }
-
-    max () {
-        return this.pokemons.reduce((max, item) => (item.level > max.level) ? item : max);
-    }
-}
 
 let chikorita = new Pokemon('Chikorita', 152);
 let beirifu = new Pokemon('Beirifu', 153);
@@ -46,12 +12,23 @@ let togepi = new Pokemon('Togepi', 175);
 let lost = new PokemonList(chikorita, beirifu, meganiumu);
 let found = new PokemonList(pupurin, togepi);
 
-//lost.show();
-found.add('Hinoarashi', 155);
-//found.show();
-let elem = lost.pokemons.splice(lost.indexOf(lost.find(item => item.name === 'Beirifu')), 1);
-found.pokemons.push(elem[0]);
+console.log(chikorita.valueOf());
 
-lost.show();
-found.show();
-console.log(found.max().valueOf());
+//lost.show();
+
+found.push(lost.find((elem) => {
+  return elem.name === 'Beirifu';
+}));
+
+let ndx = lost.findIndex((elem) => {
+  return elem.name === 'Beirifu';
+});
+if (ndx > 0) {
+  lost.splice(ndx,1);
+} else {
+  console.log('pokemon not found');
+}
+console.log(lost.show());
+console.log(found.show());
+
+console.log(found.max().show());
