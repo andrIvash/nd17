@@ -23,13 +23,12 @@ app.get('/:id', (req, res, next) => {
 });
 
 app.post('/', (req, res, next) => {
-    console.log(req.body, req.params, req);
     if (req.body.name && req.body.score) {
         const users = data().get('users');
         users.push({id: users.length + 1, name: req.body.name, score: req.body.score});
         nconf.set('users', users);
         nconf.save();
-        res.send('users add')
+        res.send({status:'ok', message: 'users add'})
     } else {
         next(new HttpError(400, 'wronq query'));
     }
@@ -62,7 +61,7 @@ app.delete('/:id', (req, res, next) => {
             users.splice(id, 1);
             nconf.set('users', users);
             nconf.save();
-            res.send('user delete');
+            res.send({status:'ok', message: 'user delete'});
         } else {
             next(new HttpError(200, 'user not found'));
         }
